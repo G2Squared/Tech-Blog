@@ -1,0 +1,86 @@
+<div class="text-center">
+  <!-- Display blog title, contents, and creation information -->
+  <h1 class="title">{{title}}</h1>
+  <h2 class="bg-info">{{contents}}</h2>
+  <p>Created by {{user.name}} on {{format_date date_created}}</p>
+
+  <!-- Check if user has the right to edit their own blog -->
+  {{#if (isEqual user_id logged_in_userId)}}
+  
+  <!-- Modal for editing blog -->
+  <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Edit Blog</button>
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <textarea rows="2" cols="20" class="form-control" id="editBlogTitle" name="editBlogTitle">{{title}}</textarea>
+    </div>
+    <div class="modal-body">
+      <textarea rows="15" cols="50" class="form-control" id="editBlogContent" name="editBlogContent">{{contents}}</textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sm btn-warning editButt" dataId="{{id}}">Submit Edit</button>
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+  </div>
+
+  {{/if}}
+
+  <br><br>
+
+  <!-- Display comment form if user is logged in -->
+  {{#if logged_in}}
+  <!-- Comment Form --> 
+  <div class="col-sm-2"></div>
+  <form class="form-horizontal commentForm">
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="comment">Leave a Comment:   </label>
+      <div class="col-sm-4">
+        <textarea class="form-control" id="commentContent" name="commentContent" dataId="{{id}}"></textarea>
+      </div>
+      <div class="col-sm-1">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </form>
+  {{else}}
+  <!-- Display message prompting user to login to leave a comment -->
+  <div class="col-sm-2"></div>
+  <form class="form-horizontal">
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="blogContent">Leave a Comment:   </label>
+      <div class="col-sm-4">
+        <textarea class="form-control" id="commentContent" name="commentContent" readonly>Please Login to leave a comment.</textarea>
+      </div>
+      <div class="col-sm-1">
+        <button type="submit" class="btn btn-primary disabled">Submit</button>
+      </div>
+    </div>
+  </form>
+  {{/if}}
+
+  <!-- Display comments -->
+  {{#each comments as |comment| }}
+    <div class="row">
+      <div class="col-sm-3"></div>
+      <div class="comment col-sm-6">
+        <div class="commentHeader">
+          <h2>
+              <span class="glyphicon glyphicon-user"></span> {{comment.user.name}} 
+          </h2>
+        </div>
+        <div class="commentBody">
+          <h4>{{comment.contents}}</h4>
+        </div>
+        <div class="commentFooter">
+          <p> Commented on {{format_date comment.date_created}}</p>
+        </div>
+      </div>
+      <div class="col-sm-3"></div>
+    </div>
+  {{/each}}
+
+ </div>
+
+<!-- Include JavaScript files -->
+<script src="/js/comment.js"></script>
+<script src="/js/updateBlog.js"></script>

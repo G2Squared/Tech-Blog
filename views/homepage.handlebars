@@ -1,0 +1,17 @@
+<div class="text-center">
+    <!-- Display a title for the list of blogs -->
+    <h1 class="title"> Blogs that have been posted. <(^ . ^)> </h1>
+    
+    <!-- Loop over each Blog -->
+    {{#each blogs as |blog| }}
+    <div>
+        <!-- Display the title of the blog with a link to the blog post -->
+        <h2>
+            <span for="img" aria-label="laptop">💻</span>
+            <a href="/blog/{{blog.id}}">{{blog.title}}</a>
+        </h2>
+        <!-- Display the name of the user who created the blog and the creation date -->
+        <p>Created by {{blog.user.name}} on {{format_date blog.date_created}}</p>
+    </div>
+    {{/each}}
+</div>

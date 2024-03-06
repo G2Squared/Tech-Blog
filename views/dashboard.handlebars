@@ -1,0 +1,57 @@
+<div class="text-center">
+    <!-- Display a greeting message with the user's name -->
+    <h1 class="title"> Hello {{name}}. <(^ . ^)></h1>
+</div>
+
+<div class="row justify-content-md-center">
+    <!-- Form to create a new blog -->
+    <div class="container col-md-1"></div>
+    <div class="container col-md-5">
+        <h2>Create a New Blog:</h2>
+
+        <form class="form-horizontal blogForm">
+            <!-- Input fields for blog title and content -->
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="blogTitle">Blog Title:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="text" id="blogTitle" name="blogTitle" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="blogContent">Content:</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="blogContent" name="blogContent"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <!-- Button to submit the new blog post -->
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Display existing blogs if there are any -->
+    {{#if blogs.length}}
+    <div class="blogList container col-md-5">
+        <h2>Your Blogs:</h2>
+
+        {{#each blogs as |blog| }} <!-- Loop over each Blog -->
+        <div class="goRight">
+            <h2>
+                <!-- Display blog title with a link to the blog post -->
+                <span for="img" aria-label="laptop">💻</span>
+                <a href="/blog/{{blog.id}}">{{blog.title}}</a>
+                <!-- Button to delete the blog post -->
+                <button class="btn btn-sm btn-danger delButt inlineMe" dataId="{{blog.id}}">Delete</button>
+            </h2>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+
+</div>
+
+<!-- Include JavaScript file for dashboard functionality -->
+<script src="./js/dashboard.js"></script>
