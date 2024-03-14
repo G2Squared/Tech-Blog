@@ -2,82 +2,78 @@ const router = require('express').Router();
 const { Blog, Comment } = require('../../models');
 const withAuth = require('../../utils/auth');
 
-// Route to create a new blog post
-router.post('/', withAuth, async (req, res) => {
+router.post('/', withAuth, async (req, res) => { // POST route to create a blog
     try {
-        // Create a new blog post with the data from the request body
-        const newBlog = await Blog.create({
-            ...req.body,
-            user_id: req.session.user_id, // Assign the current user's ID to the blog post
-        });
-
-        res.status(200).json(newBlog); // Send back the newly created blog post
+      const newBlog = await Blog.create({ // Create it
+        ...req.body,
+        user_id: req.session.user_id,
+      });
+  
+      res.status(200).json(newBlog);
     } catch (err) {
-        res.status(400).json(err); // Send a Bad Request status if there's an error
+      res.status(400).json(err);
     }
 });
 
-// Route to update an existing blog post
-router.put('/update', withAuth, async (req, res) => {
-    try {
-        // Parse the data from the request body
-        const updatedData = JSON.parse(JSON.stringify(req.body));
+router.put('/update', withAuth, async (req, res) => { // POST route to update a blog
 
-        // Update the specified blog post with the new contents and title
-        const updateBlog = await Blog.update(
-            { contents: updatedData.blogObject.contents, title: updatedData.blogObject.blogTitle },
-            {
-                where: {
-                    id: updatedData.blogObject.blogId, // Find the blog post by its ID
-                },
-            }
-        );
+  try {
+    const updatedData = JSON.parse(JSON.stringify(req.body)); // Parse the data from the request body
 
-        res.status(200).json(updateBlog); // Send back a success status with the updated blog post
-    } catch (err) {
-        res.status(400).json(err); // Send a Bad Request status if there's an error
-    }
+    console.log("#################    " + updatedData.blogObject.contents + "   ID:     " + updatedData.blogObject.blogId);
+
+    const updateBlog = await Blog.update(// Update it
+      { contents: updatedData.blogObject.contents, title: updatedData.blogObject.blogTitle},
+      {
+        where: { // Where id is equal to the blog id
+          id: updatedData.blogObject.blogId, // Note when I sent out POST request it was called 'blogObject'
+        },
+      }
+    );
+
+    res.status(200).json(updateBlog);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+
 });
 
-// Route to create a new comment on a blog post
-router.post('/comments', withAuth, async (req, res) => {
-    try {
-        // Parse the data from the request body
-        const data = JSON.parse(JSON.stringify(req.body));
+router.post('/comments', withAuth, async (req, res) => { // POST route to create a comment
+  try {     
+    const data = JSON.parse(JSON.stringify(req.body)); // Parse the data from the request body
+   
+    const newComment = await Comment.create({ // Create the comment with the data
+      contents: data.bodyObject.contents, // Note when I sent out POST request it was called 'bodyObject'
+      blog_id: data.bodyObject.blogId,
+      user_id: req.session.user_id,
+    });
 
-        // Create a new comment with the provided data
-        const newComment = await Comment.create({
-            contents: data.bodyObject.contents,
-            blog_id: data.bodyObject.blogId,
-            user_id: req.session.user_id, // Assign the current user's ID to the comment
-        });
+    res.status(200).json(newComment);
+    
+  } catch (err) {
+    res.status(400).json(err);
+  }
 
-        res.status(200).json(newComment); // Send back the newly created comment
-    } catch (err) {
-        res.status(400).json(err); // Send a Bad Request status if there's an error
-    }
 });
 
-// Route to delete a blog post by its ID
-router.delete('/:id', withAuth, async (req, res) => {
+router.delete('/:id', withAuth, async (req, res) => { // DELETE route to delete a blog
     try {
-        // Delete the specified blog post if it belongs to the current user
-        const blogData = await Blog.destroy({
-            where: {
-                id: req.params.id,
-                user_id: req.session.user_id, // Ensure the blog post belongs to the current user
-            },
-        });
-
-        if (!blogData) {
-            res.status(404).json({ message: 'No blog post found with this id!' });
-            return;
-        }
-
-        res.status(200).json(blogData); // Send back the deleted blog post
+      const blogData = await Blog.destroy({ // Destroy (delete) it
+        where: {
+          id: req.params.id,
+          user_id: req.session.user_id, // user id should be in session
+        },
+      });
+  
+      if (!blogData) {
+        res.status(404).json({ message: 'No project found with this id!' });
+        return;
+      }
+  
+      res.status(200).json(blogData);
     } catch (err) {
-        res.status(500).json(err); // Send a server error status if there's an error
+      res.status(500).json(err);
     }
-});
-
-module.exports = router;
+  });
+  
+  module.exports = router;

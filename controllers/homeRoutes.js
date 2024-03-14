@@ -2,106 +2,96 @@ const router = require('express').Router();
 const { User, Blog, Comment } = require('../models');
 const withAuth = require('../utils/auth');
 
-// Route to fetch all blog posts for the homepage
 router.get('/', async (req, res) => {
+   
     try {
-        // Fetch all blog posts including the associated user names
+        // Get all Blog posts and also User names
         const blogData = await Blog.findAll({
             include: [
                 {
                     model: User,
-                    attributes: ['name'], // Retrieve only the user's name
+                    attributes: ['name'], // just want the name
                 },
             ],
         });
 
-        // Serialize the data for the template to read
+        // Serialize data so template can read it
         const blogs = blogData.map((blog) => blog.get({ plain: true }));
 
-        // Send the data to the homepage template
+        // send that data to the template
         res.render('homepage', {
             blogs,
             logged_in: req.session.logged_in
         });
     } catch (err){
-        // Handle server error if fetching data fails
-        res.status(500).json(err);
+        res.json(500).json(err);
     }
 });
 
-// Route to fetch a specific blog post and its associated comments
 router.get('/blog/:id', async (req, res) => {
     try {
-        // Fetch the specified blog post and include the associated user's name
-        const blogData = await Blog.findByPk(req.params.id, {
-            include: [
-                {
-                    model: User,
-                    attributes: ['name'],
-                },
-            ],
-        });
+      const blogData = await Blog.findByPk(req.params.id, {
+        include: [
+          {
+            model: User,
+            attributes: ['name'],
+          },
+        ],
+      });
+  
+      const blog = blogData.get({ plain: true });
 
-        const blog = blogData.get({ plain: true });
+      const commentData = await Comment.findAll({ // Get commentes
+        where: { // WHERE blog_id == blog.id (from the first model)
+          blog_id: blog.id
+        },
+        include: [{ // Include user associated with that comment
+          model: User,
+          attributes: ['name'],
+         }],
+        
+      });
+  
+      const comments = commentData.map((comment) => comment.get({ plain: true}));
 
-        // Fetch comments associated with the specified blog post
-        const commentData = await Comment.findAll({
-            where: {
-                blog_id: blog.id
-            },
-            include: [{
-                model: User,
-                attributes: ['name'],
-            }],
-        });
-
-        const comments = commentData.map((comment) => comment.get({ plain: true }));
-
-        // Render the blog page template with the retrieved data
-        res.render('blog', {
-            ...blog,
-            comments,
-            logged_in: req.session.logged_in,
-            logged_in_userId: req.session.user_id
-        });
+      res.render('blog', {
+        ...blog,
+        comments,
+        logged_in: req.session.logged_in,
+        logged_in_userId: req.session.user_id
+      });
     } catch (err) {
-        // Handle server error if fetching data fails
-        res.status(500).json(err);
+      res.status(500).json(err);
     }
 });
 
-// Route to render the user dashboard after authentication
+
 router.get('/dashboard', withAuth, async (req, res) => {
-    try {
-        // Fetch the logged-in user's data excluding the password and including their blogs
-        const userData = await User.findByPk(req.session.user_id, {
-            attributes: { exclude: ['password'] },
-            include: [{ model: Blog }],
-        });
+  try {
+    const userData = await User.findByPk(req.session.user_id, { // find user logged in
+      attributes: { exclude: ['password'] },
+      include: [{ model: Blog }],
+    });
 
-        const user = userData.get({ plain: true });
+    const user = userData.get({ plain: true });
 
-        // Render the dashboard template with the user's data
-        res.render('dashboard', {
-            ...user,
-            logged_in: true
-        });
-    } catch (err) {
-        // Handle server error if fetching data fails
-        res.status(500).json(err);
-    }
+    res.render('dashboard', {
+      ...user,
+      logged_in: true
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
-// Route to render the login page
 router.get('/login', (req, res) => {
-    // Redirect to the dashboard if the user is already logged in
-    if (req.session.logged_in) {
+    if (req.session.logged_in) { // if we are logged in, send user to dashboard
         res.redirect('/dashboard');
         return;
     }
 
-    // Render the login page
     res.render('login');
 });
+
 
 module.exports = router;
