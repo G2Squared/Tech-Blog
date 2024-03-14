@@ -1,51 +1,40 @@
-// Function to handle form submission for creating a comment
-const createCommentFormHandler = async (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
+const createCommentFormHandler = async (event) => { // handles form to create a blog
+    event.preventDefault();
 
-    // Get the text contents of the comment input field
     const textContents = document.querySelector('#commentContent');
+  
     const contents = textContents.value.trim();
-
-    // Get the ID of the blog associated with the comment
-    const blogId = textContents.getAttribute('dataId');
+    const blogId = textContents.getAttribute('dataId'); // the blog id associated to the current blog
 
     console.log("Comment: " + contents);
     console.log("ID is " + blogId);
 
-    // Create an object to send in the request body with comment content and blog ID
-    const bodyObject = {
-        contents: contents,
-        blogId: blogId
+    const bodyObject = { // Send object through request with comment content and blog id
+      contents: contents,
+      blogId: blogId
     };
-
-    // If the comment content exists
-    if (contents) {
-        try {
-            // Send a POST request to create the comment
-            const response = await fetch(`/api/blogs/comments`, {
-                method: 'POST',
-                body: JSON.stringify({ bodyObject }), // Send the bodyObject as the request body
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            // If the request is successful, refresh the page to display the new comment
-            if (response.ok) {
-                document.location.replace(`/blog/${blogId}`);
-            } else {
-                // Alert the user if creating the comment failed
-                alert('Failed to create comment');
-            }
-        } catch (error) {
-            console.error('Error creating comment:', error);
-            // Handle any errors that occur during the process
-            alert('An error occurred while creating the comment.');
-        }
+    
+    if (contents) { // if it exists
+      const response = await fetch(`/api/blogs/comments`, { // Sent out POST request
+        method: 'POST',
+        body: JSON.stringify({ bodyObject }), // Send out bodyObject as response
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        document.location.replace(`/blog/${blogId}`); // refresh page
+      } else {
+        alert('Failed to create comment');
+      }
     }
+
+    
+    
 };
 
-// Event listener to handle form submission when creating a comment
+
 document
   .querySelector('.commentForm')
   .addEventListener('submit', createCommentFormHandler);
